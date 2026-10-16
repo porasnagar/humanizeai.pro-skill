@@ -26,6 +26,13 @@ VALID_STYLES = [
     "shorten",
 ]
 
+VALID_WRITING_LEVELS = [
+    "advanced",  # Difficult / Fairly difficult (Default)
+    "academic",  # Very difficult
+    "standard",  # Fairly easy
+    "simple",    # Easy to read
+]
+
 USER_AGENTS = [
     (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
@@ -112,16 +119,18 @@ class HumanizeClient:
         self,
         text: str,
         style: str = "standard",
+        writing_level: str = "advanced",
         visible_words: int = 200,
         timeout: float = 35.0,
     ) -> str:
-        """Humanize a single text chunk (must be <= 200 words for complete free output).
+        """Humanize a single text chunk using Writing Level Difficult and Tone Free.
 
         Args:
             text: Input text chunk to humanize.
-            style: Rewriting style ('standard', 'academic', 'simple', 'flowing',
-                   'informal', 'formal', 'expand', 'shorten').
-            visible_words: Words visible limit (default 200 for free unlimited tier).
+            style: Tone style ('standard' represents Tone 'Free').
+            writing_level: Writing level ('advanced' represents 'Difficult',
+                           'academic' represents 'Very difficult', 'standard', 'simple').
+            visible_words: Words visible limit (default 200).
             timeout: Request timeout in seconds.
 
         Returns:
@@ -132,8 +141,10 @@ class HumanizeClient:
             return ""
 
         if style not in VALID_STYLES:
-            logger.warning(f"Unknown style '{style}'. Falling back to 'standard'.")
             style = "standard"
+
+        if writing_level not in VALID_WRITING_LEVELS:
+            writing_level = "advanced"
 
         payload = {
             "text": cleaned,
@@ -147,6 +158,7 @@ class HumanizeClient:
             "from_detector": True,
             "turnstileToken": "turnstile-bypass",
             "visibleWords": visible_words,
+            "writingLevel": writing_level,
         }
 
         data_bytes = json.dumps(payload).encode("utf-8")

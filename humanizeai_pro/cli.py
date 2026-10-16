@@ -50,21 +50,19 @@ def main():
         help="Path to save output file (defaults to <input_stem>_humanized.<format>)",
     )
     parser.add_argument(
+        "-l",
+        "--writing-level",
+        type=str,
+        default="advanced",
+        choices=["advanced", "academic", "standard", "simple"],
+        help="Writing level (default: advanced [Difficult])",
+    )
+    parser.add_argument(
         "-s",
         "--style",
         type=str,
         default="standard",
-        choices=[
-            "standard",
-            "academic",
-            "simple",
-            "flowing",
-            "informal",
-            "formal",
-            "expand",
-            "shorten",
-        ],
-        help="Humanization style (default: standard)",
+        help="Tone style (default: standard [Tone: Free])",
     )
     parser.add_argument(
         "-f",
@@ -121,6 +119,7 @@ def main():
     config = SwarmConfig(
         workers=args.workers,
         style=args.style,
+        writing_level=args.writing_level,
         max_chunk_words=175,
         delay_between_requests=0.8,
         enable_jitter=True,
@@ -131,8 +130,9 @@ def main():
     swarm = HumanizerSwarm(config)
 
     # Step 3: Swarm Execution with Rich Progress Bar
+    wl_display = "Difficult" if args.writing_level == "advanced" else args.writing_level.title()
     console.print(
-        f"\n[bold yellow][>] Step 2: Deploying {args.workers}-Worker Swarm (Style: {args.style})...[/bold yellow]"
+        f"\n[bold yellow][>] Step 2: Deploying {args.workers}-Worker Swarm (Writing Level: {wl_display}, Tone: Free)...[/bold yellow]"
     )
 
     with Progress(

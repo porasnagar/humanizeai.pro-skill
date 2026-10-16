@@ -23,7 +23,8 @@ logger = logging.getLogger("humanizeai_pro.swarm")
 @dataclass
 class SwarmConfig:
     workers: int = 2
-    style: str = "standard"
+    style: str = "standard"          # Tone: Free
+    writing_level: str = "advanced"  # Writing Level: Difficult (advanced)
     max_chunk_words: int = 175
     delay_between_requests: float = 0.8
     enable_jitter: bool = True
@@ -75,6 +76,7 @@ class HumanizerSwarm:
             humanized = client.humanize_chunk(
                 chunk.content,
                 style=self.config.style,
+                writing_level=self.config.writing_level,
                 visible_words=200,
             )
             return humanized
