@@ -2,9 +2,9 @@
 """
 Universal Cross-Agent Installer for HumanizeAI Pro Swarm
 Auto-detects and installs the skill for:
-- Google Antigravity (.agents/skills)
+- Google Antigravity (~/.gemini/config/skills & .agents/skills)
 - Anthropic Claude Code (~/.claude/skills)
-- OpenAI Codex & OpenCode (~/.codex/skills)
+- OpenAI Codex & OpenCode (~/.codex/skills & ~/.config/opencode/skills)
 - Hermes Agent (~/.hermes/skills)
 - Cursor & Custom Workspaces (.cursor/skills)
 """
@@ -19,17 +19,38 @@ SKILL_NAME = "humanizeai-pro"
 REPO_ROOT = Path(__file__).resolve().parent
 
 AGENT_SKILL_PATHS = [
-    # Global Antigravity / Universal Agents
+    # Global Antigravity Config
+    Path.home() / ".gemini" / "config" / "skills" / SKILL_NAME,
+    Path.home() / ".gemini" / "config" / "skills" / "humanizer",
+    # Global Universal Agents
     Path.home() / ".agents" / "skills" / SKILL_NAME,
-    # Local workspace Antigravity
+    # Local workspace Antigravity (if in project)
     REPO_ROOT.parent / ".agents" / "skills" / SKILL_NAME,
     # Claude Code
     Path.home() / ".claude" / "skills" / SKILL_NAME,
     # Codex / OpenCode
     Path.home() / ".codex" / "skills" / SKILL_NAME,
+    Path.home() / ".config" / "opencode" / "skills" / SKILL_NAME,
     # Hermes
     Path.home() / ".hermes" / "skills" / SKILL_NAME,
 ]
+
+LEGACY_HUMANIZER_PATHS = [
+    Path.home() / ".claude" / "skills" / "humanizer",
+    Path.home() / ".hermes" / "skills" / "humanizer",
+    Path.home() / ".config" / "opencode" / "skills" / "humanizer",
+]
+
+
+def cleanup_legacy():
+    print("[*] Cleaning up old legacy humanizer installations...")
+    for old_path in LEGACY_HUMANIZER_PATHS:
+        if old_path.exists():
+            try:
+                shutil.rmtree(old_path)
+                print(f"[+] Removed legacy humanizer from: {old_path}")
+            except Exception as e:
+                print(f"[!] Warning: Could not remove {old_path}: {e}")
 
 
 def install_dependencies():
@@ -51,16 +72,20 @@ def install_skill():
     installed_targets = []
 
     for target_dir in AGENT_SKILL_PATHS:
-        # Check if parent agent directory exists or if it's the global .agents path
         parent_agent = target_dir.parent.parent
-        is_global = ".agents" in str(target_dir)
+        is_global = ".agents" in str(target_dir) or ".gemini" in str(target_dir)
 
         if parent_agent.exists() or is_global:
             try:
                 target_dir.mkdir(parents=True, exist_ok=True)
 
-                # Copy SKILL.md
-                shutil.copy2(REPO_ROOT / "SKILL.md", target_dir / "SKILL.md")
+                # Determine skill name for SKILL.md
+                skill_id = target_dir.name
+                skill_content = (REPO_ROOT / "SKILL.md").read_text(encoding="utf-8")
+                if skill_id != SKILL_NAME:
+                    skill_content = skill_content.replace(f"name: {SKILL_NAME}", f"name: {skill_id}")
+
+                (target_dir / "SKILL.md").write_text(skill_content, encoding="utf-8")
 
                 # Copy scripts directory
                 if (REPO_ROOT / "scripts").exists():
@@ -93,5 +118,6 @@ def install_skill():
 
 
 if __name__ == "__main__":
+    cleanup_legacy()
     install_dependencies()
     install_skill()
