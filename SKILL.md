@@ -25,7 +25,7 @@ Compatible across **Anthropic Claude Code**, **Google Antigravity**, **OpenAI Co
 | **Tone** | **Free** *(Default)* | `standard` | Authentic, unconstrained natural cadence |
 | **Chunk Size** | **150–175 words** | Auto | Preserves sentence and paragraph boundaries losslessly |
 
-*(Note: In the HumanizeAI.pro UI, 'Very difficult' maps internally to the `academic` engine, which delivers the strongest humanization).*
+*(Note: The built-in `SchemaInspector` automatically checks the live HumanizeAI.pro frontend before execution, ensuring the skill stays synchronized whenever the platform renames or adds new difficulty tiers).*
 
 ---
 
@@ -43,7 +43,7 @@ Whenever a user requests humanization of a file or text, follow this 5-step pipe
      2. Confirm Desired Output Format (Ask User First!)
                     │
                     ▼
-     3. Deploy Multi-Agent Swarm (Writing Level: Difficult, Tone: Free)
+     3. Deploy Multi-Agent Swarm (Writing Level: Very difficult, Tone: Free)
                     │
                     ▼
      4. Review Critic Fact & Citation Audit

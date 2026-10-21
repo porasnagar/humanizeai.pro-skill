@@ -15,6 +15,7 @@ from .critic import SemanticCritic, AuditResult
 from .extractor import DocumentExtractor
 from .formatter import DocumentFormatter
 from .proxy_pool import ProxyPool
+from .schema_inspector import SchemaInspector, SiteSchema
 
 __all__ = [
     "HumanizeClient",
@@ -29,4 +30,6 @@ __all__ = [
     "DocumentExtractor",
     "DocumentFormatter",
     "ProxyPool",
+    "SchemaInspector",
+    "SiteSchema",
 ]

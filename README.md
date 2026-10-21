@@ -18,6 +18,7 @@ This configuration creates the highest human authenticity scores across AI detec
 
 ## Key Highlights
 
+- **Live Site Auto-Discovery**: Automatically inspects the live HumanizeAI.pro frontend before execution to detect any renamed levels, new difficulty modes, or parameter changes, automatically selecting the highest humanization level.
 - **Dynamic IP & Proxy Rotation**: Automatically harvests, validates, and rotates live HTTPS proxies to bypass Cloudflare Error 1015, IP rate limits, and 429 backoffs.
 - **Strict Zero-Fallback Guarantee**: Eliminates silent reversion to raw AI text when API limits are encountered; retries across rotating proxies until 100% humanization is verified.
 - **Optimal Writing Profile**: Pre-configured with **Writing Level: Very difficult** (`academic`) and **Tone: Free** for maximum stylistic depth and human burstiness.
@@ -99,6 +100,7 @@ python -m humanizeai_pro paper.md -o paper.tex -f latex
 | `--proxy` | `None` | Optional HTTP/HTTPS proxy URL |
 | `--rotate-ip` | `True` | Automatically validate and rotate active proxies to bypass rate limits |
 | `--no-rotate-ip` | `False` | Disable automatic IP rotation |
+| `--check-updates` | `False` | Force live site inspection to refresh difficulty and tone mappings |
 
 ---
 

@@ -107,6 +107,11 @@ def main():
         action="store_false",
         help="Disable dynamic IP/proxy rotation",
     )
+    parser.add_argument(
+        "--check-updates",
+        action="store_true",
+        help="Force live inspection of HumanizeAI.pro site to detect any UI or difficulty level updates",
+    )
 
     args = parser.parse_args()
     print_banner()
@@ -127,7 +132,8 @@ def main():
         console.print("[bold red]Document contains no text to humanize.[/bold red]")
         sys.exit(1)
 
-    # Step 2: Initialize Swarm
+    # Step 2: Live Platform Sync & Swarm Init
+    console.print(f"\n[bold yellow][>] Step 2: Verifying live site schema & updates on HumanizeAI.pro...[/bold yellow]")
     config = SwarmConfig(
         workers=args.workers,
         style=args.style,
@@ -141,12 +147,15 @@ def main():
         audit_facts=not args.no_audit,
     )
     swarm = HumanizerSwarm(config)
+    console.print(
+        f"  [green][+] Live site sync verified:[/green] Active mode is [bold cyan]'{swarm.schema.highest_writing_level_label}'[/bold cyan] (internal: {swarm.config.writing_level})"
+    )
 
     # Step 3: Swarm Execution with Rich Progress Bar
-    wl_display = "Very difficult" if args.writing_level in ("academic", "very-difficult", "very_difficult") else ("Fairly difficult" if args.writing_level == "advanced" else args.writing_level.title())
+    wl_display = swarm.schema.highest_writing_level_label if args.writing_level in ("academic", "very-difficult", "very_difficult") else ("Fairly difficult" if args.writing_level == "advanced" else args.writing_level.title())
     rot_display = "Active" if args.rotate_ip else "Disabled"
     console.print(
-        f"\n[bold yellow][>] Step 2: Deploying {args.workers}-Worker Swarm (Writing Level: {wl_display}, Tone: Free, IP Rotation: {rot_display})...[/bold yellow]"
+        f"\n[bold yellow][>] Step 3: Deploying {args.workers}-Worker Swarm (Writing Level: {wl_display}, Tone: Free, IP Rotation: {rot_display})...[/bold yellow]"
     )
 
     with Progress(

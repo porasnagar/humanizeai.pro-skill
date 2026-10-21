@@ -16,6 +16,7 @@ from .chunker import Chunk, SemanticChunker
 from .critic import AuditResult, SemanticCritic
 from .engine import HumanizeClient, HumanizeError
 from .proxy_pool import ProxyPool
+from .schema_inspector import SchemaInspector
 from .stitcher import DocumentStitcher
 
 logger = logging.getLogger("humanizeai_pro.swarm")
@@ -69,6 +70,18 @@ class HumanizerSwarm:
             )
             # Ensure we have active proxies ready
             self.proxy_pool.refresh(min_needed=3)
+
+        # Proactively verify live site schema for any platform updates
+        self.inspector = SchemaInspector(proxy_pool=self.proxy_pool)
+        self.schema = self.inspector.inspect()
+
+        # If writing level is default or academic, automatically use live verified highest mode
+        if self.config.writing_level in ("academic", "advanced", "default"):
+            self.config.writing_level = self.schema.highest_writing_level
+            logger.info(
+                f"[Swarm Engine] Synchronized with live site: Operating at '{self.schema.highest_writing_level_label}' "
+                f"(internal: {self.config.writing_level})"
+            )
 
     def _get_browser_engine(self) -> BrowserHumanizeClient:
         if self._browser_engine is None:

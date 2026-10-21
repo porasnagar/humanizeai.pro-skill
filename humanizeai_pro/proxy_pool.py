@@ -87,8 +87,9 @@ class ProxyPool:
         candidates = set()
         for url in PUBLIC_SOURCES:
             try:
+                ssl_ctx = ssl._create_unverified_context()
                 req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-                with urllib.request.urlopen(req, timeout=8) as r:
+                with urllib.request.urlopen(req, timeout=8, context=ssl_ctx) as r:
                     content = r.read().decode("utf-8", errors="ignore")
                     for line in content.splitlines():
                         line = line.strip()
