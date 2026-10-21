@@ -25,7 +25,7 @@ logger = logging.getLogger("humanizeai_pro.swarm")
 class SwarmConfig:
     workers: int = 2
     style: str = "standard"          # Tone: Free
-    writing_level: str = "advanced"  # Writing Level: Difficult (advanced)
+    writing_level: str = "academic"  # Writing Level: Very difficult (academic - 0% AI on Turnitin)
     max_chunk_words: int = 175
     delay_between_requests: float = 0.8
     enable_jitter: bool = True

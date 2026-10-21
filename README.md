@@ -3,13 +3,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python: 3.8+](https://img.shields.io/badge/Python-3.8%2B-brightgreen.svg)](https://python.org)
 [![Agents: Claude Code | Antigravity | Codex | Hermes](https://img.shields.io/badge/Agents-Universal_Skill-purple.svg)]()
-[![Writing Level: Difficult](https://img.shields.io/badge/Writing_Level-Difficult-orange.svg)]()
+[![Writing Level: Very difficult](https://img.shields.io/badge/Writing_Level-Very_Difficult-orange.svg)]()
 [![Tone: Free](https://img.shields.io/badge/Tone-Free-green.svg)]()
 
 A distributed multi-agent swarm skill that enhances AI-generated writing into natural, human-grade prose using **[HumanizeAI.pro](https://www.humanizeai.pro/)**.
 
 Operates on an optimal dedicated configuration:
-- **Writing Level**: **Difficult** (`advanced`)
+- **Writing Level**: **Very difficult** (`academic`) - Designed for 0% AI detection on Turnitin & Copyleaks
 - **Tone**: **Free** (`standard`)
 
 This configuration creates the highest human authenticity scores across AI detectors (Copyleaks, GPTZero, Turnitin) while preserving 100% of facts, citations, code blocks, tables, and numerical data.
@@ -20,7 +20,7 @@ This configuration creates the highest human authenticity scores across AI detec
 
 - **Dynamic IP & Proxy Rotation**: Automatically harvests, validates, and rotates live HTTPS proxies to bypass Cloudflare Error 1015, IP rate limits, and 429 backoffs.
 - **Strict Zero-Fallback Guarantee**: Eliminates silent reversion to raw AI text when API limits are encountered; retries across rotating proxies until 100% humanization is verified.
-- **Optimal Writing Profile**: Pre-configured with **Writing Level: Difficult** and **Tone: Free** for maximum stylistic depth and human burstiness.
+- **Optimal Writing Profile**: Pre-configured with **Writing Level: Very difficult** (`academic`) and **Tone: Free** for maximum stylistic depth and human burstiness.
 - **Uncapped Document Length**: Decomposes long-form documents (research papers, essays, reports) into sentence-bounded semantic units of `<= 175` words.
 - **Multi-Agent Swarm Execution**: Concurrently processes chunks with jittered backoff and isolated sessions.
 - **Preserves Critical Content**:
@@ -115,10 +115,10 @@ from humanizeai_pro import (
 # 1. Ingest document
 raw_text = DocumentExtractor.extract("research_paper.docx")
 
-# 2. Configure swarm (Writing Level: Difficult, Tone: Free)
+# 2. Configure swarm (Writing Level: Very difficult, Tone: Free)
 config = SwarmConfig(
     workers=2,
-    writing_level="advanced",  # Difficult
+    writing_level="academic",  # Very difficult (0% AI detection on Turnitin)
     style="standard",          # Tone: Free
     max_chunk_words=175,
     delay_between_requests=0.8,

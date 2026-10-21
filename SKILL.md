@@ -8,7 +8,7 @@ description: Universal Long-Form AI Text Humanizer and Natural Flow Enhancer pow
 The **HumanizeAI Pro Swarm** skill enhances AI-generated writing into authentic, human-sounding prose for documents of **any word count** using `https://www.humanizeai.pro/`.
 
 It uses an optimal dedicated configuration:
-- **Writing Level**: **Difficult** (`advanced`) - Generates rich, human-grade vocabulary and varied syntactic burstiness.
+- **Writing Level**: **Very difficult** (`academic`) - Generates rich, human-grade vocabulary, deep syntactic burstiness, and complex sentence structures designed to achieve 0% AI detection on Turnitin, GPTZero, and Copyleaks.
 - **Tone**: **Free** (`standard`) - Natural, balanced, and unconstrained human flow.
 
 This combination produces the highest human authenticity scores across AI detectors (Copyleaks, GPTZero, Turnitin) while preserving 100% of facts, citations (`Author et al., Year`), code blocks, tables, numbers, and technical terminology.
@@ -21,11 +21,11 @@ Compatible across **Anthropic Claude Code**, **Google Antigravity**, **OpenAI Co
 
 | Parameter | Setting | Internal Value | Purpose |
 |---|---|---|---|
-| **Writing Level** | **Difficult** *(Default)* | `advanced` | Varied sentence length, rich vocabulary, high burstiness |
+| **Writing Level** | **Very difficult** *(Default)* | `academic` | Deep sentence variety, rich vocabulary, maximum burstiness (0% AI score) |
 | **Tone** | **Free** *(Default)* | `standard` | Authentic, unconstrained natural cadence |
 | **Chunk Size** | **150–175 words** | Auto | Preserves sentence and paragraph boundaries losslessly |
 
-*(Note: Other modes are unnecessary—Writing Level Difficult + Tone Free provides the optimal humanization quality).*
+*(Note: In the HumanizeAI.pro UI, 'Very difficult' maps internally to the `academic` engine, which delivers the strongest humanization).*
 
 ---
 

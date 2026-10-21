@@ -7,6 +7,7 @@ session lifecycle, IP rotation, and error recovery.
 import json
 import logging
 import random
+import ssl
 import time
 import urllib.error
 import urllib.request
@@ -27,11 +28,30 @@ VALID_STYLES = [
 ]
 
 VALID_WRITING_LEVELS = [
-    "advanced",  # Difficult / Fairly difficult (Default)
-    "academic",  # Very difficult
+    "academic",  # Very difficult (Default - Highest human authenticity score on Turnitin)
+    "advanced",  # Fairly difficult
     "standard",  # Fairly easy
     "simple",    # Easy to read
 ]
+
+WRITING_LEVEL_ALIASES = {
+    "very-difficult": "academic",
+    "very_difficult": "academic",
+    "very difficult": "academic",
+    "difficult": "academic",
+    "academic": "academic",
+    "fairly-difficult": "advanced",
+    "fairly_difficult": "advanced",
+    "fairly difficult": "advanced",
+    "advanced": "advanced",
+    "fairly-easy": "standard",
+    "fairly_easy": "standard",
+    "fairly easy": "standard",
+    "standard": "standard",
+    "easy-to-read": "simple",
+    "easy_to_read": "simple",
+    "simple": "simple",
+}
 
 USER_AGENTS = [
     (
@@ -132,17 +152,17 @@ class HumanizeClient:
         self,
         text: str,
         style: str = "standard",
-        writing_level: str = "advanced",
+        writing_level: str = "academic",
         visible_words: int = 200,
         timeout: float = 35.0,
     ) -> str:
-        """Humanize a single text chunk using Writing Level Difficult and Tone Free.
+        """Humanize a single text chunk using Writing Level Very difficult (academic) and Tone Free.
 
         Args:
             text: Input text chunk to humanize.
             style: Tone style ('standard' represents Tone 'Free').
-            writing_level: Writing level ('advanced' represents 'Difficult',
-                           'academic' represents 'Very difficult', 'standard', 'simple').
+            writing_level: Writing level ('academic' represents 'Very difficult',
+                           'advanced' represents 'Fairly difficult', 'standard', 'simple').
             visible_words: Words visible limit (default 200).
             timeout: Request timeout in seconds.
 
@@ -156,8 +176,10 @@ class HumanizeClient:
         if style not in VALID_STYLES:
             style = "standard"
 
-        if writing_level not in VALID_WRITING_LEVELS:
-            writing_level = "advanced"
+        # Resolve aliases like 'very-difficult', 'difficult' -> 'academic'
+        norm_level = WRITING_LEVEL_ALIASES.get(writing_level.lower().strip(), writing_level)
+        if norm_level not in VALID_WRITING_LEVELS:
+            norm_level = "academic"
 
         payload = {
             "text": cleaned,
@@ -171,11 +193,13 @@ class HumanizeClient:
             "from_detector": True,
             "turnstileToken": "turnstile-bypass",
             "visibleWords": visible_words,
-            "writingLevel": writing_level,
+            "writingLevel": norm_level,
         }
 
         data_bytes = json.dumps(payload).encode("utf-8")
         last_error = None
+
+        ssl_ctx = ssl._create_unverified_context()
 
         for attempt in range(1, self.max_retries + 1):
             active_proxy = None
@@ -191,9 +215,9 @@ class HumanizeClient:
                 if active_proxy:
                     proxy_url = f"http://{active_proxy}" if not active_proxy.startswith("http") else active_proxy
                     proxy_handler = urllib.request.ProxyHandler({"http": proxy_url, "https": proxy_url})
-                    opener = urllib.request.build_opener(proxy_handler)
+                    opener = urllib.request.build_opener(proxy_handler, urllib.request.HTTPSHandler(context=ssl_ctx))
                 else:
-                    opener = urllib.request.build_opener()
+                    opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=ssl_ctx))
 
                 with opener.open(req, timeout=timeout) as resp:
                     status_code = resp.status

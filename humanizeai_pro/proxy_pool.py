@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import random
+import ssl
 import threading
 import time
 import urllib.request
@@ -35,7 +36,7 @@ TEST_PAYLOAD = json.dumps({
     "from_detector": True,
     "turnstileToken": "turnstile-bypass",
     "visibleWords": 200,
-    "writingLevel": "advanced",
+    "writingLevel": "academic",
 }).encode("utf-8")
 
 TEST_HEADERS = {
@@ -109,8 +110,9 @@ class ProxyPool:
     def test_proxy(proxy: str, timeout: float = 6.0) -> bool:
         """Validate if a proxy can successfully reach HumanizeAI.pro and return 200 OK."""
         proxy_url = f"http://{proxy}" if not proxy.startswith("http") else proxy
+        ssl_ctx = ssl._create_unverified_context()
         proxy_handler = urllib.request.ProxyHandler({"http": proxy_url, "https": proxy_url})
-        opener = urllib.request.build_opener(proxy_handler)
+        opener = urllib.request.build_opener(proxy_handler, urllib.request.HTTPSHandler(context=ssl_ctx))
         req = urllib.request.Request(
             "https://www.humanizeai.pro/api/process",
             data=TEST_PAYLOAD,

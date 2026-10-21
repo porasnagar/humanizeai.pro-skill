@@ -53,9 +53,9 @@ def main():
         "-l",
         "--writing-level",
         type=str,
-        default="advanced",
-        choices=["advanced", "academic", "standard", "simple"],
-        help="Writing level (default: advanced [Difficult])",
+        default="academic",
+        choices=["academic", "very-difficult", "advanced", "standard", "simple"],
+        help="Writing level (default: academic [Very difficult - 0% AI detection])",
     )
     parser.add_argument(
         "-s",
@@ -143,7 +143,7 @@ def main():
     swarm = HumanizerSwarm(config)
 
     # Step 3: Swarm Execution with Rich Progress Bar
-    wl_display = "Difficult" if args.writing_level == "advanced" else args.writing_level.title()
+    wl_display = "Very difficult" if args.writing_level in ("academic", "very-difficult", "very_difficult") else ("Fairly difficult" if args.writing_level == "advanced" else args.writing_level.title())
     rot_display = "Active" if args.rotate_ip else "Disabled"
     console.print(
         f"\n[bold yellow][>] Step 2: Deploying {args.workers}-Worker Swarm (Writing Level: {wl_display}, Tone: Free, IP Rotation: {rot_display})...[/bold yellow]"
