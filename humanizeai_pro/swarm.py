@@ -18,6 +18,7 @@ from .engine import HumanizeClient, HumanizeError
 from .proxy_pool import ProxyPool
 from .schema_inspector import SchemaInspector
 from .stitcher import DocumentStitcher
+from .updater import SkillUpdater
 
 logger = logging.getLogger("humanizeai_pro.swarm")
 
@@ -38,6 +39,7 @@ class SwarmConfig:
     audit_facts: bool = True
     strict_zero_fallback: bool = True  # Guarantee 0% silent fallback to raw unhumanized text
     max_chunk_retries: int = 6
+    auto_update_skill: bool = True     # Automatically keep skill updated from GitHub repository
 
 
 @dataclass
@@ -74,6 +76,16 @@ class HumanizerSwarm:
         # Proactively verify live site schema for any platform updates
         self.inspector = SchemaInspector(proxy_pool=self.proxy_pool)
         self.schema = self.inspector.inspect()
+
+        # Proactively check and keep skill updated from GitHub
+        if self.config.auto_update_skill:
+            try:
+                self.updater = SkillUpdater()
+                upd_result = self.updater.check_and_update()
+                if upd_result:
+                    logger.info(f"[Swarm Engine] {upd_result}")
+            except Exception as e:
+                logger.debug(f"GitHub skill auto-update skipped: {e}")
 
         # If writing level is default or academic, automatically use live verified highest mode
         if self.config.writing_level in ("academic", "advanced", "default"):

@@ -25,7 +25,7 @@ Compatible across **Anthropic Claude Code**, **Google Antigravity**, **OpenAI Co
 | **Tone** | **Free** *(Default)* | `standard` | Authentic, unconstrained natural cadence |
 | **Chunk Size** | **150–175 words** | Auto | Preserves sentence and paragraph boundaries losslessly |
 
-*(Note: The built-in `SchemaInspector` automatically checks the live HumanizeAI.pro frontend before execution, ensuring the skill stays synchronized whenever the platform renames or adds new difficulty tiers).*
+*(Note: The built-in `SchemaInspector` automatically checks the live HumanizeAI.pro frontend before execution, while `SkillUpdater` seamlessly checks and pulls upstream updates from GitHub to keep all local agent installations synchronized).*
 
 ---
 

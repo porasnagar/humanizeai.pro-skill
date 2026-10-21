@@ -18,6 +18,7 @@ This configuration creates the highest human authenticity scores across AI detec
 
 ## Key Highlights
 
+- **Continuous GitHub Auto-Sync**: Automatically checks GitHub ([`porasnagar/humanizeai.pro-skill`](https://github.com/porasnagar/humanizeai.pro-skill)) for new upstream updates before execution, seamlessly pulling enhancements across all local agent environments.
 - **Live Site Auto-Discovery**: Automatically inspects the live HumanizeAI.pro frontend before execution to detect any renamed levels, new difficulty modes, or parameter changes, automatically selecting the highest humanization level.
 - **Dynamic IP & Proxy Rotation**: Automatically harvests, validates, and rotates live HTTPS proxies to bypass Cloudflare Error 1015, IP rate limits, and 429 backoffs.
 - **Strict Zero-Fallback Guarantee**: Eliminates silent reversion to raw AI text when API limits are encountered; retries across rotating proxies until 100% humanization is verified.
@@ -91,7 +92,7 @@ python -m humanizeai_pro paper.md -o paper.tex -f latex
 |---|---|---|
 | `input` | *(Required)* | File path or raw text string |
 | `-o, --output` | Auto-named | Path for the output file |
-| `-l, --writing-level` | `advanced` | Writing level (`advanced` [Difficult], `academic`, `standard`, `simple`) |
+| `-l, --writing-level` | `academic` | Writing level (`academic` [Very difficult - 0% AI], `advanced`, `standard`, `simple`) |
 | `-s, --style` | `standard` | Tone style (`standard` [Tone: Free]) |
 | `-f, --format` | `md` | Target output format (`md`, `docx`, `pdf`, `latex`) |
 | `-w, --workers` | `2` | Number of concurrent swarm workers |
@@ -101,6 +102,8 @@ python -m humanizeai_pro paper.md -o paper.tex -f latex
 | `--rotate-ip` | `True` | Automatically validate and rotate active proxies to bypass rate limits |
 | `--no-rotate-ip` | `False` | Disable automatic IP rotation |
 | `--check-updates` | `False` | Force live site inspection to refresh difficulty and tone mappings |
+| `--update` | `False` | Check and pull latest skill updates from GitHub immediately |
+| `--no-update` | `True` | Disable automatic GitHub skill update check |
 
 ---
 

@@ -112,6 +112,18 @@ def main():
         action="store_true",
         help="Force live inspection of HumanizeAI.pro site to detect any UI or difficulty level updates",
     )
+    parser.add_argument(
+        "--update",
+        action="store_true",
+        help="Check and pull latest skill updates from GitHub immediately",
+    )
+    parser.add_argument(
+        "--no-update",
+        dest="auto_update",
+        action="store_false",
+        default=True,
+        help="Disable automatic GitHub update check",
+    )
 
     args = parser.parse_args()
     print_banner()
@@ -132,8 +144,20 @@ def main():
         console.print("[bold red]Document contains no text to humanize.[/bold red]")
         sys.exit(1)
 
-    # Step 2: Live Platform Sync & Swarm Init
-    console.print(f"\n[bold yellow][>] Step 2: Verifying live site schema & updates on HumanizeAI.pro...[/bold yellow]")
+    # Step 2: Live Platform Sync & GitHub Update Check
+    console.print(f"\n[bold yellow][>] Step 2: Verifying live platform sync & GitHub updates...[/bold yellow]")
+    if args.auto_update or args.update:
+        try:
+            from .updater import SkillUpdater
+            updater = SkillUpdater()
+            update_status = updater.check_and_update(force=args.update)
+            if update_status:
+                console.print(f"  [bold green][+] GitHub auto-update:[/bold green] {update_status}")
+            else:
+                console.print(f"  [green][+] GitHub skill sync:[/green] Up to date with [cyan]porasnagar/humanizeai.pro-skill[/cyan] (main)")
+        except Exception as e:
+            console.print(f"  [yellow][!] GitHub sync notice:[/yellow] {e}")
+
     config = SwarmConfig(
         workers=args.workers,
         style=args.style,
@@ -145,6 +169,7 @@ def main():
         proxy=args.proxy,
         rotate_ip=args.rotate_ip,
         audit_facts=not args.no_audit,
+        auto_update_skill=args.auto_update,
     )
     swarm = HumanizerSwarm(config)
     console.print(

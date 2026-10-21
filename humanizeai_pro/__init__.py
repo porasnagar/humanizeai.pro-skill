@@ -16,6 +16,7 @@ from .extractor import DocumentExtractor
 from .formatter import DocumentFormatter
 from .proxy_pool import ProxyPool
 from .schema_inspector import SchemaInspector, SiteSchema
+from .updater import SkillUpdater
 
 __all__ = [
     "HumanizeClient",
@@ -32,4 +33,5 @@ __all__ = [
     "ProxyPool",
     "SchemaInspector",
     "SiteSchema",
+    "SkillUpdater",
 ]
