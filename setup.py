@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name="humanizeai-pro",
-    version="1.0.0",
-    description="Multi-agent swarm humanizer for HumanizeAI.pro bypassing 200-word free tier limits",
+    version="1.1.0",
+    description="Multi-agent swarm humanizer for HumanizeAI.pro with dynamic IP rotation and zero-fallback guarantee",
     author="Antigravity Team",
     packages=find_packages(),
     install_requires=[

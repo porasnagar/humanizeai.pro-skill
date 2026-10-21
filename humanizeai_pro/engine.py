@@ -1,7 +1,7 @@
 """
 Core HTTP Engine for HumanizeAI.pro
 Handles resilient communication, antibot bypass, header rotation,
-session lifecycle, and error recovery.
+session lifecycle, IP rotation, and error recovery.
 """
 
 import json
@@ -11,7 +11,7 @@ import time
 import urllib.error
 import urllib.request
 import uuid
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger("humanizeai_pro.engine")
 
@@ -70,7 +70,7 @@ class HumanizeClient:
     """Direct HTTP Client for https://www.humanizeai.pro/api/process
 
     Implements realistic browser fingerprints, dynamic session tracking,
-    anti-bot evasion tokens, and adaptive backoff retry logic.
+    anti-bot evasion tokens, proxy/IP rotation, and adaptive backoff retry logic.
     """
 
     API_ENDPOINT = "https://www.humanizeai.pro/api/process"
@@ -78,17 +78,30 @@ class HumanizeClient:
 
     def __init__(
         self,
-        max_retries: int = 4,
+        max_retries: int = 5,
         base_delay: float = 1.0,
         max_delay: float = 8.0,
         enable_jitter: bool = True,
         proxy: Optional[str] = None,
+        proxy_pool: Optional[Any] = None,
+        rotate_ip: bool = False,
     ):
         self.max_retries = max_retries
         self.base_delay = base_delay
         self.max_delay = max_delay
         self.enable_jitter = enable_jitter
         self.proxy = proxy
+        self.proxy_pool = proxy_pool
+        self.rotate_ip = rotate_ip
+
+        if self.rotate_ip and self.proxy_pool is None:
+            try:
+                from .proxy_pool import ProxyPool
+                self.proxy_pool = ProxyPool()
+                self.proxy_pool.refresh(min_needed=3)
+            except Exception as e:
+                logger.warning(f"Could not initialize ProxyPool: {e}")
+
         self.session_id = str(uuid.uuid4())
         self._ua_tuple = random.choice(USER_AGENTS)
 
@@ -165,12 +178,19 @@ class HumanizeClient:
         last_error = None
 
         for attempt in range(1, self.max_retries + 1):
+            active_proxy = None
+            if self.proxy_pool:
+                active_proxy = self.proxy_pool.get_proxy()
+            elif self.proxy:
+                active_proxy = self.proxy
+
             try:
                 headers = self._get_headers()
                 req = urllib.request.Request(self.API_ENDPOINT, data=data_bytes, headers=headers)
 
-                if self.proxy:
-                    proxy_handler = urllib.request.ProxyHandler({"http": self.proxy, "https": self.proxy})
+                if active_proxy:
+                    proxy_url = f"http://{active_proxy}" if not active_proxy.startswith("http") else active_proxy
+                    proxy_handler = urllib.request.ProxyHandler({"http": proxy_url, "https": proxy_url})
                     opener = urllib.request.build_opener(proxy_handler)
                 else:
                     opener = urllib.request.build_opener()
@@ -184,7 +204,9 @@ class HumanizeClient:
                     if results and isinstance(results, list):
                         humanized_text = results[0].get("text", "").strip()
                         if humanized_text:
-                            # Successfully got humanized output
+                            # Acknowledge proxy success if using pool
+                            if self.proxy_pool and active_proxy:
+                                self.proxy_pool.report_success(active_proxy)
                             return humanized_text
 
                     # If result text is empty but locked exists, warn about word count
@@ -197,15 +219,22 @@ class HumanizeClient:
             except urllib.error.HTTPError as e:
                 body = e.read().decode("utf-8", errors="ignore") if e.fp else ""
                 last_error = HumanizeError(f"HTTP {e.code}: {e.reason}", status_code=e.code, response_body=body)
-                logger.warning(f"Attempt {attempt}/{self.max_retries} failed: HTTP {e.code} - {body}")
+                logger.warning(
+                    f"Attempt {attempt}/{self.max_retries} failed on proxy {active_proxy}: HTTP {e.code} - {body}"
+                )
+
+                if self.proxy_pool and active_proxy:
+                    self.proxy_pool.report_failure(active_proxy)
 
                 if e.code in (403, 429):
                     # Rate limit or antibot: rotate identity and backoff
                     self._rotate_identity()
 
             except Exception as e:
-                last_error = HumanizeError(f"Network error: {str(e)}")
-                logger.warning(f"Attempt {attempt}/{self.max_retries} connection failed: {e}")
+                last_error = HumanizeError(f"Network error on proxy {active_proxy}: {str(e)}")
+                logger.warning(f"Attempt {attempt}/{self.max_retries} connection failed on proxy {active_proxy}: {e}")
+                if self.proxy_pool and active_proxy:
+                    self.proxy_pool.report_failure(active_proxy)
                 self._rotate_identity()
 
             if attempt < self.max_retries:

@@ -27,7 +27,7 @@ console = Console(force_terminal=True, legacy_windows=False)
 def print_banner():
     banner = """[bold cyan]+==============================================================+
 |             [bold white]HumanizeAI.pro Multi-Agent Swarm[/bold white]                 |
-|   [dim]Bypass 200-Word Free Tier Limits & Anti-Bot Mitigations[/dim]    |
+|   [dim]Bypass 200-Word Free Tier Limits, Anti-Bot & IP Rotation[/dim]   |
 +==============================================================+[/bold cyan]"""
     console.print(banner)
 
@@ -95,6 +95,18 @@ def main():
         default=None,
         help="Optional proxy (e.g. http://127.0.0.1:8080)",
     )
+    parser.add_argument(
+        "--rotate-ip",
+        action="store_true",
+        default=True,
+        help="Enable dynamic IP/proxy rotation to bypass Cloudflare rate limits (default: True)",
+    )
+    parser.add_argument(
+        "--no-rotate-ip",
+        dest="rotate_ip",
+        action="store_false",
+        help="Disable dynamic IP/proxy rotation",
+    )
 
     args = parser.parse_args()
     print_banner()
@@ -123,16 +135,18 @@ def main():
         max_chunk_words=175,
         delay_between_requests=0.8,
         enable_jitter=True,
-        use_browser_fallback=True,
+        use_browser_fallback=args.use_browser,
         proxy=args.proxy,
+        rotate_ip=args.rotate_ip,
         audit_facts=not args.no_audit,
     )
     swarm = HumanizerSwarm(config)
 
     # Step 3: Swarm Execution with Rich Progress Bar
     wl_display = "Difficult" if args.writing_level == "advanced" else args.writing_level.title()
+    rot_display = "Active" if args.rotate_ip else "Disabled"
     console.print(
-        f"\n[bold yellow][>] Step 2: Deploying {args.workers}-Worker Swarm (Writing Level: {wl_display}, Tone: Free)...[/bold yellow]"
+        f"\n[bold yellow][>] Step 2: Deploying {args.workers}-Worker Swarm (Writing Level: {wl_display}, Tone: Free, IP Rotation: {rot_display})...[/bold yellow]"
     )
 
     with Progress(

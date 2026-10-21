@@ -18,6 +18,8 @@ This configuration creates the highest human authenticity scores across AI detec
 
 ## Key Highlights
 
+- **Dynamic IP & Proxy Rotation**: Automatically harvests, validates, and rotates live HTTPS proxies to bypass Cloudflare Error 1015, IP rate limits, and 429 backoffs.
+- **Strict Zero-Fallback Guarantee**: Eliminates silent reversion to raw AI text when API limits are encountered; retries across rotating proxies until 100% humanization is verified.
 - **Optimal Writing Profile**: Pre-configured with **Writing Level: Difficult** and **Tone: Free** for maximum stylistic depth and human burstiness.
 - **Uncapped Document Length**: Decomposes long-form documents (research papers, essays, reports) into sentence-bounded semantic units of `<= 175` words.
 - **Multi-Agent Swarm Execution**: Concurrently processes chunks with jittered backoff and isolated sessions.
@@ -95,6 +97,8 @@ python -m humanizeai_pro paper.md -o paper.tex -f latex
 | `--use-browser` | `False` | Enable Playwright browser automation mode |
 | `--no-audit` | `False` | Skip semantic critic verification audit |
 | `--proxy` | `None` | Optional HTTP/HTTPS proxy URL |
+| `--rotate-ip` | `True` | Automatically validate and rotate active proxies to bypass rate limits |
+| `--no-rotate-ip` | `False` | Disable automatic IP rotation |
 
 ---
 
